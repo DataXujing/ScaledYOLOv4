@@ -202,6 +202,14 @@ python train.py --batch-size 8 --img 640 640 --data eus.yaml --cfg models/eus/yo
 
 ```
 
+训练数据
+
+![](pic/train_batch0.jpg)
+
+测试数据
+
+![](pic/test_batch0_gt.jpg)
+
 
 ### 4.模型推断
 
