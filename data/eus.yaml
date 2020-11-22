@@ -1,0 +1,10 @@
+# train and val datasets (image directory or *.txt file with image paths)
+train: ./eus/images/train  # 118k images
+val: ./eus/images/val  # 5k images
+test: ./eus/images/val  # 20k images for submission to https://competitions.codalab.org/competitions/20794
+
+# number of classes
+nc: 7
+
+# class names
+names: ["Liomyoma", "Lipoma", "Pancreatic Rest", "GIST", "Cyst",  "NET", "Cancer"]
