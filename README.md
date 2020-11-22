@@ -1,5 +1,7 @@
 ## [Scaled YOLOv4](https://github.com/WongKinYiu/ScaledYOLOv4) 训练自己的数据集
 
+> 感谢 <https://github.com/WongKinYiu/ScaledYOLOv4> 大佬的开源！！！
+
 **DataXujing**
 
 我们以训练YOLOv4-P7为例，介绍如何基于Scaled YOLOv4训练自己的数据集
