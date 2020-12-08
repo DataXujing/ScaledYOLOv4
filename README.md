@@ -225,15 +225,167 @@ python test.py --img 1536 --conf 0.001 --batch 8 --device 0 --data coco.yaml --w
 
 + 模型推断
 
-**TODO**
+图像识别：
+
+```python
+python test_img.py
+```
+
+视频识别：
+
+```
+python test_video.py
+```
+
+
 
 
 ### 5.DEMO
 
-**TODO**
+![](pic/test1.jpg)
 
 ### 6.TensorRT加速
 
-**TODO**
++ 1.编译安装opencv
 
+```
+# download: https://github.com/opencv/opencv/archive/4.3.0.zip
+
+# Install dependence
+sudo apt-get install cmake git libgtk2.0-dev pkg-config  libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install libtbb2  libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
+sudo apt-get install qtbase5-dev qtdeclarative5-dev
+sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
+sudo apt-get update
+sudo apt install libjasper1 libjasper-dev 
+
+# make
+mkdir build && cd build
+cmake .. -DWITH_QT=ON -DBUILD_TIFF=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DCMAKE_INSTALL_PREFIX=/usr/local
+sudo make -j16
+sudo make install
+
+# config
+pkg-config --cflags opencv4
+sudo gedit /etc/ld.so.conf.d/opencv.conf
+
+and input
+
+/usr/local/lib
+
+如果报错，可参考：https://blog.csdn.net/darren2015zdc/article/details/74011918
+```
+
++ 2.编译安装yaml-cpp 0.6.3
+
+```
+download: https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.zip
+
+mkdir build && cd build
+cmake ..
+make -j
+```
+
+
+
++ 3.修改CMakeLists.txt
+
+修改TensorRT下的CMakeLists.txt文件夹
+
+```
+cmake_minimum_required(VERSION 3.5)
+
+project(ScaledYOLOv4_trt)
+
+set(CMAKE_CXX_STANDARD 14)
+
+# CUDA
+find_package(CUDA REQUIRED)
+message(STATUS "Find CUDA include at ${CUDA_INCLUDE_DIRS}")
+message(STATUS "Find CUDA libraries: ${CUDA_LIBRARIES}")
+
+# TensorRT
+set(TENSORRT_ROOT /home/myuser/xujing/TensorRT-7.0.0.11)   
+find_path(TENSORRT_INCLUDE_DIR NvInfer.h
+        HINTS ${TENSORRT_ROOT} PATH_SUFFIXES include/)
+message(STATUS "Found TensorRT headers at ${TENSORRT_INCLUDE_DIR}")
+find_library(TENSORRT_LIBRARY_INFER nvinfer
+        HINTS ${TENSORRT_ROOT} ${TENSORRT_BUILD} ${CUDA_TOOLKIT_ROOT_DIR}
+        PATH_SUFFIXES lib lib64 lib/x64)
+find_library(TENSORRT_LIBRARY_ONNXPARSER nvonnxparser
+        HINTS  ${TENSORRT_ROOT} ${TENSORRT_BUILD} ${CUDA_TOOLKIT_ROOT_DIR}
+        PATH_SUFFIXES lib lib64 lib/x64)
+set(TENSORRT_LIBRARY ${TENSORRT_LIBRARY_INFER} ${TENSORRT_LIBRARY_ONNXPARSER})
+message(STATUS "Find TensorRT libs: ${TENSORRT_LIBRARY}")
+
+# OpenCV
+find_package(OpenCV REQUIRED)
+message(STATUS "Find OpenCV include at ${OpenCV_INCLUDE_DIRS}")
+message(STATUS "Find OpenCV libraries: ${OpenCV_LIBRARIES}")
+
+set(COMMON_INCLUDE ./includes/common)   
+set(YAML_INCLUDE ./includes/yaml-cpp/include)
+set(YAML_LIB_DIR ./includes/yaml-cpp/libs)
+
+include_directories(${CUDA_INCLUDE_DIRS} ${TENSORRT_INCLUDE_DIR} /home/myuser/xujing/tensorRT_apply/opencv-4.3.0 ${COMMON_INCLUDE} ${YAML_INCLUDE})
+link_directories(${YAML_LIB_DIR})
+
+add_executable(ScaledYOLOv4_trt main.cpp ScaledYOLOv4.cpp)
+target_link_libraries(ScaledYOLOv4_trt ${OpenCV_LIBRARIES} ${CUDA_LIBRARIES} ${TENSORRT_LIBRARY} yaml-cpp)
+```
+
+
+
++ 4.修改运行export_onnx.py
+
+```
+# 将TensorRT文件加下的export_onnx.py复制到项目根目录
+# 修改模型路径和input图像大小
+
+python export_onnx.py
+```
+
++ 5.编译ScaledYOLOv4
+
+```
+mkdir build && cd build
+cmake ..
+make -j
+
+如果报错很可能是安装环境稳定或CMakeLists.txt链接库的路径问题，请自行检查解决。
+```
+
+编译成功后：
+
+![](pic/p1.png)
+
+
+
+使用yolov4-p7做模型推断：
+
+```
+# 将onnx模型存放到config-p7.yaml指定的文件夹下
+
+./ScaledYOLOv4_trt ../config-p7.yaml ../samples/
+```
+
+**TODO：出现了如下错误，亟待解决**
+
+![](pic/p2.png)
+
+## Citation
+
+```
+@article{wang2020scaled,
+  title={{Scaled-YOLOv4}: Scaling Cross Stage Partial Network},
+  author={Wang, Chien-Yao and Bochkovskiy, Alexey and Liao, Hong-Yuan Mark},
+  journal={arXiv preprint arXiv:2011.08036},
+  year={2020}
+}
+
+```
+
+```
+https://github.com/linghu8812/tensorrt_inference/tree/master/ScaledYOLOv4
+```
 
