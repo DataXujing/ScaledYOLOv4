@@ -369,7 +369,6 @@ make -j
 ./ScaledYOLOv4_trt ../config-p7.yaml ../samples/
 ```
 
-~~**TODO：出现了如下错误，亟待解决**
 
 ![](pic/p2.png)
 
